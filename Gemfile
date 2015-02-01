@@ -12,6 +12,7 @@ gem 'jbuilder', '~> 2.0'
 gem 'carrierwave'
 gem 'fog'
 gem 'figaro'
+gem 'mini_magick'
 gem 'rails_12factor', group: :production
 gem 'pg', group: :production
 gem 'sdoc', '~> 0.4.0',          group: :doc
