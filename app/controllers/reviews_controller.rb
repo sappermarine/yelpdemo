@@ -2,6 +2,7 @@ class ReviewsController < ApplicationController
   before_action :set_review, only: [:edit, :update, :destroy]
   before_action :set_restaurant
   before_action :authenticate_user!
+  before_action :check_user, only: [:edit, :update, :destroy]
 
   respond_to :html
 
@@ -29,13 +30,23 @@ class ReviewsController < ApplicationController
   end
 
   def update
-    @review.update(review_params)
-    respond_with(@review)
+    respond_to do |format|
+      if @review.update(review_params)
+        format.html { redirect_to restaurant_path(@restaurant), notice: 'Review was successfully updated.' }
+        format.json { render :show, status: :ok, location: @review }
+      else
+        format.html { render :edit }
+        format.json { render json: @review.errors, status: :unprocessable_entity }
+      end
+    end
   end
 
   def destroy
-    @review.destroy
-    respond_with(@review)
+  @review.destroy
+  respond_to do |format|
+    format.html { redirect_to restaurant_path(@restaurant), notice: 'Review was successfully destroyed.' }
+    format.json { head :no_content }
+    end
   end
 
   private
@@ -49,5 +60,11 @@ class ReviewsController < ApplicationController
 
     def review_params
       params.require(:review).permit(:rating, :comment)
+    end
+
+    def check_user
+      unless (@review.user == current_user) || (current_user.admin?)
+        redirect_to root_url, alert: "Sorry, this review belongs to someone else"
+      end
     end
 end
